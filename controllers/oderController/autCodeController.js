@@ -2,6 +2,7 @@
 const User = require('../../model/userOrder');
 const sgMail = require('@sendgrid/mail');
 
+// Configurar la API Key (en Render debe estar en variables de entorno)
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Validar formato de correo
@@ -18,8 +19,11 @@ const sendCode = async (req, res) => {
 
     // Generar código de 6 dígitos
     const codeToken = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Expiración en 15 minutos
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
+    // Crear o actualizar usuario de forma atómica
     const update = {
       $set: {
         correo,
@@ -30,15 +34,16 @@ const sendCode = async (req, res) => {
     };
 
     const options = { upsert: true, new: true, setDefaultsOnInsert: true };
-    await User.findOneAndUpdate({ correo }, update, options);
 
-    // 📧 Correo con código dinámico
-    const mailOptions = {
-      to: correo,
+    const usuario = await User.findOneAndUpdate({ correo }, update, options);
+
+    // Preparar el correo a enviar (exactamente igual a tu HTML)
+    const msg = {
       from: {
-        email: process.env.EMAIL_FROM || process.env.SENDGRID_VERIFIED_EMAIL,
+        email: process.env.EMAIL_FROM || process.env.EMAIL_USER,
         name: 'Total Ticket',
       },
+      to: correo,
       subject: `Tu código es ${codeToken}`,
       html: `
         <div
@@ -48,7 +53,7 @@ const sendCode = async (req, res) => {
         <h1
             style="text-align: center; color: #202223; font-size: 15px; font-weight: 400; width: 100%; margin: 30px auto;">
             Tu código de verificación:</h1>
-        <span style="font-size: 21px; font-weight: 600; color: #202223; padding: 10px 20px; letter-spacing: 8px; ">
+        <span style="font-size: 21px; font-weight: 600; color: #202223; padding: 10px 20px; letter-spacing: 8px;">
             ${codeToken}
         </span>
         <h1
@@ -56,19 +61,21 @@ const sendCode = async (req, res) => {
             Este código solo se puede usar una vez. Vencerá en 15 minutos.</h1>
         <span style="color: #6d7175; font-size: 12px;">© Total Ticket</span>
         <div style="display: flex; text-align: center; margin: auto; gap:2rem; margin-top: 30px; width: auto; max-width: 400%;">
-            <a href="" style="color: #2c6ecb; font-size: 12px; text-align: center; text-decoration: none; "> Política de privacidad</a>
+            <a href="" style="color: #2c6ecb; font-size: 12px; text-align: center; text-decoration: none;">Política de privacidad</a>
             <a href="" style="color: #2c6ecb; font-size: 12px; text-align: center; text-decoration: none; margin-left:2rem;">Términos del servicio</a>
         </div>
-    </div>
+        </div>
       `,
     };
 
     try {
-      await sgMail.send(mailOptions);
+      // Enviar el correo con SendGrid
+      await sgMail.send(msg);
       return res.json({ message: 'Código enviado al correo' });
     } catch (mailErr) {
-      console.error('SendGrid error:', mailErr.response?.body || mailErr);
+      // Rollback si falla el envío
       await User.updateOne({ correo }, { $unset: { codigoAutenticacion: "" } }).catch(() => {});
+      console.error('Error al enviar correo con SendGrid:', mailErr.response?.body || mailErr);
       return res.status(500).json({ message: 'Error al enviar el correo' });
     }
   } catch (err) {
