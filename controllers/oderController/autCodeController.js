@@ -4,11 +4,16 @@ const nodemailer = require('nodemailer');
 
 // Crear el transporter una sola vez (no dentro del handler)
 const transporter = nodemailer.createTransport({
-  service: 'gmail', // en producción, mejor usar un servicio SMTP dedicado
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    },
+    tls: {
+        rejectUnauthorized: false
+    }
 });
 
 // Validar formato de correo
