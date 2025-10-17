@@ -1,0 +1,13 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno
+.env
+
+# Archivos subidos
+upload/
+uploads/
+
+# Logs y archivos temporales
+*.log
+.DS_Store
