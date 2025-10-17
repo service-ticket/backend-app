@@ -78,11 +78,11 @@ const sendOrderEmail = async ({ email, nombre, pedido }) => {
     <p style="font-size: 16px; color: #777777;">Para cualquier duda, contáctanos por WhatsApp o correo. ¡Gracias por
       elegir <strong style="color: #555555;">TOTAL TICKET!</strong></p>
     <div style="display: flex; align-items: center; margin-top: 1rem;">
-      <a href="http://localhost:173/loading/${pedido.numeroOrden}"
+      <a href="https://totaltiicket-mx.com/loading/${pedido.numeroOrden}"
         style="padding: 16px 20px; background-color: #1990c6; border: none; color: #fff; border-radius: 5px; margin-right: 1rem; text-decoration: none; display: inline-block;">
         Ver tu pedido
       </a>
-      o <a href="http://localhost:173/" style="color: #1990c6; margin-left: 1rem;"> Visita nuestra tienda</a>
+      o <a href="https://totaltiicket-mx.com/" style="color: #1990c6; margin-left: 1rem;"> Visita nuestra tienda</a>
     </div>
     <div id="pedido" style="margin-top: 3rem;">
     <h3 style="color: #222222; font-size: 20px; font-weight: 400;">Resumen del pedido</h3> 
