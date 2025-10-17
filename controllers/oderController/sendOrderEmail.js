@@ -1,18 +1,21 @@
 const nodemailer = require('nodemailer');
 
+const nodemailer = require('nodemailer');
+
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    tls: {
-        rejectUnauthorized: false
-    }
+  host: "smtp.sendgrid.net",
+  port: 587,        // STARTTLS
+  secure: false,    // false para STARTTLS
+  auth: {
+    user: process.env.SENDGRID_API_KEY,               // siempre "apikey" como usuario
+    pass: process.env.SENDGRID_API_KEY // tu API Key de SendGrid
+  },
+  tls: {
+    rejectUnauthorized: false
+  }
 });
 
+module.exports = transporter;
 const sendOrderEmail = async ({ email, nombre, pedido }) => {
 
     const itemsHTML = pedido.items.map(item => `
