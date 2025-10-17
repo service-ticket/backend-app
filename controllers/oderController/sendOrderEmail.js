@@ -4,11 +4,11 @@ const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
   host: "smtp.sendgrid.net",
-  port: 587,        // STARTTLS
-  secure: false,    // false para STARTTLS
+  port: 587,           // STARTTLS
+  secure: false,       // false para STARTTLS
   auth: {
-    user: process.env.SENDGRID_API_KEY,               // siempre "apikey" como usuario
-    pass: process.env.SENDGRID_API_KEY // tu API Key de SendGrid
+    user: "apikey",    // literal "apikey"
+    pass: process.env.SENDGRID_API_KEY
   },
   tls: {
     rejectUnauthorized: false
