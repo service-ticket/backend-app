@@ -1,20 +1,8 @@
 // controllers/sendCodeController.js
 const User = require('../../model/userOrder');
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 
-// Crear el transporter una sola vez (no dentro del handler)
-const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    tls: {
-        rejectUnauthorized: false
-    }
-});
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Validar formato de correo
 const isValidCorreo = (correo) =>
@@ -50,7 +38,7 @@ const sendCode = async (req, res) => {
 
     // Preparar el correo a enviar
     const mailOptions = {
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      from: process.env.EMAIL_FROM || process.env.SENDGRID_VERIFIED_EMAIL,
       to: correo,
       subject: `Tu código es ${codeToken}`,
       html: `
@@ -62,7 +50,7 @@ const sendCode = async (req, res) => {
             style="text-align: center; color: #202223; font-size: 15px; font-weight: 400; width: 100%; margin: 30px auto;">
             Tu código de verificación:</h1>
         <span style="font-size: 21px; font-weight: 600; color: #202223; padding: 10px 20px; letter-spacing: 8px; ">
-            752209
+            ${codeToken}
         </span>
         <h1
             style="text-align: center; color: #202223; font-size: 14px; font-weight: 400; width: 100%; margin-top: 20px; margin-bottom: 40px;">
@@ -77,8 +65,8 @@ const sendCode = async (req, res) => {
     };
 
     try {
-      // Enviar el correo
-      await transporter.sendMail(mailOptions);
+      // Enviar el correo con SendGrid
+      await sgMail.send(mailOptions);
       return res.json({ message: 'Código enviado al correo' });
     } catch (mailErr) {
       // Rollback: eliminar el código si el correo no se pudo enviar

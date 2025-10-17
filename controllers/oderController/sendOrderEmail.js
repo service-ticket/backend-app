@@ -39,7 +39,7 @@ const sendOrderEmail = async ({ email, nombre, pedido }) => {
     box-sizing: border-box;
   ">
     <div style="display: flex; justify-content: space-between; margin: auto; width: 100%;">
-      <a href="http://localhost:173/" style="text-decoration: none; color: #333333; font-size: 30px; width: 60%; margin:auto;"> Total Ticket</a>
+      <a href="" style="text-decoration: none; color: #333333; font-size: 30px; width: 60%; margin:auto;"> Total Ticket</a>
       <span style="color: #999999; font-size: 16px; width: 40%; margin:auto; text-align: end;"># ${pedido.numeroOrden}</span>
     </div>
     <h2 style="font-size: 24px; color:#222222; font-weight: 400;">¡Boletos Reservados!</h2>
