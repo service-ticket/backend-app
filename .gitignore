@@ -11,3 +11,5 @@ uploads/
 # Logs y archivos temporales
 *.log
 .DS_Store
+
+notas.txt

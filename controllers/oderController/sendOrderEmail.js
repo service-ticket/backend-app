@@ -29,27 +29,8 @@ const sendOrderEmail = async ({ email, nombre, pedido }) => {
       html: `
         <html>
           <body>
-            <!-- TODO: Aquí va todo tu HTML completo tal como lo tenías, incluyendo ${itemsHTML} -->
-            <div class="container" style="
-              font-family: Arial, Helvetica, sans-serif;
-              width: 100%;
-              max-width: 560px;
-              margin: 50px auto;
-              background: #fff;
-              padding: 0 0;
-              box-sizing: border-box;
-            ">
-              <div style="display: flex; justify-content: space-between; margin: auto; width: 100%;">
-                <a href="http://localhost:173/" style="text-decoration: none; color: #333333; font-size: 30px; width: 60%; margin:auto;"> Total Ticket</a>
-                <span style="color: #999999; font-size: 16px; width: 40%; margin:auto; text-align: end;"># ${pedido.numeroOrden}</span>
-              </div>
-              <h2 style="font-size: 24px; color:#222222; font-weight: 400;">¡Boletos Reservados!</h2>
-              <span style="color: #777777; width: 100%;">Hola ${nombre || email},</span>
-              <p style="font-size: 16px; color: #777777;">Gracias por tu pedido para <strong style="color: #555555; text-transform: capitalize;">${pedido.items[0].artista} – ${pedido.items[0].fecha} 
-              - ${pedido.items[0].zona}.</strong></p>
-              <!-- Aquí sigue TODO tu HTML exactamente igual, incluyendo ${itemsHTML} y todas las secciones de pedido, cliente y métodos de envío -->
-              ${itemsHTML}
-            </div>
+            <!-- TODO: todo tu HTML -->
+            ${itemsHTML}
           </body>
         </html>
       `,
@@ -58,10 +39,14 @@ const sendOrderEmail = async ({ email, nombre, pedido }) => {
     await sgMail.send(msg);
     console.log(`✅ Correo enviado a ${email}`);
   } catch (error) {
-    console.error('Error enviando correo:', error);
+    // Aquí imprimimos toda la info del error de SendGrid
+    if (error.response && error.response.body) {
+      console.error('SendGrid error:', error.response.body);
+    } else {
+      console.error('Error general:', error);
+    }
     throw new Error('No se pudo enviar el correo');
   }
 };
 
 module.exports = sendOrderEmail;
-
