@@ -18,11 +18,8 @@ const sendCode = async (req, res) => {
 
     // Generar código de 6 dígitos
     const codeToken = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // Expiración en 15 minutos
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-    // Crear o actualizar usuario de forma atómica
     const update = {
       $set: {
         correo,
@@ -33,13 +30,15 @@ const sendCode = async (req, res) => {
     };
 
     const options = { upsert: true, new: true, setDefaultsOnInsert: true };
+    await User.findOneAndUpdate({ correo }, update, options);
 
-    const usuario = await User.findOneAndUpdate({ correo }, update, options);
-
-    // Preparar el correo a enviar
+    // 📧 Correo con código dinámico
     const mailOptions = {
-      from: process.env.EMAIL_FROM || process.env.SENDGRID_VERIFIED_EMAIL,
       to: correo,
+      from: {
+        email: process.env.EMAIL_FROM || process.env.SENDGRID_VERIFIED_EMAIL,
+        name: 'Total Ticket',
+      },
       subject: `Tu código es ${codeToken}`,
       html: `
         <div
@@ -65,16 +64,11 @@ const sendCode = async (req, res) => {
     };
 
     try {
-      // Enviar el correo con SendGrid
       await sgMail.send(mailOptions);
       return res.json({ message: 'Código enviado al correo' });
     } catch (mailErr) {
-      // Rollback: eliminar el código si el correo no se pudo enviar
-      await User.updateOne(
-        { correo },
-        { $unset: { codigoAutenticacion: "" } }
-      ).catch(() => {});
-      console.error('Error al enviar correo:', mailErr);
+      console.error('SendGrid error:', mailErr.response?.body || mailErr);
+      await User.updateOne({ correo }, { $unset: { codigoAutenticacion: "" } }).catch(() => {});
       return res.status(500).json({ message: 'Error al enviar el correo' });
     }
   } catch (err) {
